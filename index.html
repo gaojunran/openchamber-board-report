@@ -374,6 +374,14 @@ body[data-lightbox] { overflow:hidden; }
     image.addEventListener('keydown', (event) => {
       if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); returnTo = image; show(index); }
     });
+    // The caption is part of the same capture, and on a phone it is the part
+    // people tap; a click that finishes a text selection is left alone.
+    figures[index].addEventListener('click', (event) => {
+      if (event.target === image) return;
+      if (window.getSelection()?.toString()) return;
+      returnTo = image;
+      show(index);
+    });
   });
   closeButton.addEventListener('click', close);
   prevButton.addEventListener('click', () => step(-1));
