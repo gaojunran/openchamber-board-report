@@ -332,6 +332,11 @@ body[data-lightbox] { overflow:hidden; }
     prevButton.setAttribute('aria-label', prevLabel());
     nextButton.setAttribute('aria-label', nextLabel());
     box.setAttribute('aria-label', dialogLabel());
+    if (openIndex >= 0) {
+      const text = figures[openIndex].querySelector('figcaption')?.textContent.trim() ?? '';
+      caption.textContent = text;
+      boxImage.alt = text;
+    }
   };
   const show = (index) => {
     if (index < 0 || index >= images.length) return;
