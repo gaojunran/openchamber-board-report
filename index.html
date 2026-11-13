@@ -22,6 +22,7 @@ header.hero { padding:48px 0 24px; border-bottom:1px solid var(--line); }
 .eyebrow { font:600 12px/1 var(--sans); letter-spacing:.09em; text-transform:uppercase; color:var(--accent); }
 h1 { font-size:clamp(28px,4vw,40px); line-height:1.15; margin:14px 0 10px; letter-spacing:-.02em; }
 .lead { color:var(--muted); max-width:70ch; margin:0 0 18px; }
+.hint { font-size:13px; color:var(--muted); margin:-6px 0 18px; }
 .meta { display:flex; flex-wrap:wrap; gap:8px; font-size:13px; color:var(--muted); }
 .meta span { border:1px solid var(--line); border-radius:999px; padding:4px 10px; background:var(--surface); }
 .lang { position:sticky; top:0; z-index:20; display:flex; justify-content:flex-end; gap:6px; padding:10px 0; background:linear-gradient(var(--bg) 70%, transparent); }
@@ -88,6 +89,7 @@ body[data-lightbox] { overflow:hidden; }
   <div class="eyebrow" data-en="Implementation report" data-zh="实现报告">Implementation report</div>
   <h1 data-en="Board item management: editing, actions and conversation controls" data-zh="看板条目管理：编辑、操作与会话控制">Board item management: editing, actions and conversation controls</h1>
   <p class="lead" data-en="Issue #6570 asked for item editing, issue and discussion management, and pull-request actions across the source board. This is what was built, how each provider behaves, and what was verified on real hosts." data-zh="Issue #6570 要求为来源看板补齐条目编辑、issue/discussion 管理与 PR 操作。这里是实际实现的全部内容、各 provider 的行为差异，以及真机验证的结果。">Issue #6570 asked for item editing, issue and discussion management, and pull-request actions across the source board. This is what was built, how each provider behaves, and what was verified on real hosts.</p>
+  <p class="hint" data-en="Click any screenshot to open it full size: the arrow keys step through the captures and Esc closes it." data-zh="点击任意截图可放大查看：← → 切换，Esc 关闭。">Click any screenshot to open it full size: the arrow keys step through the captures and Esc closes it.</p>
   <div class="meta">
     <span data-en="Repository: openchamber/openchamber" data-zh="仓库：openchamber/openchamber">Repository: openchamber/openchamber</span>
     <span data-en="Branch: feat/board-item-management" data-zh="分支：feat/board-item-management">Branch: feat/board-item-management</span>
