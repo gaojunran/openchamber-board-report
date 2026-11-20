@@ -130,130 +130,9 @@ body[data-lightbox] { overflow:hidden; }
 
 
 
-<footer>
-  <p data-en="Built in the OpenChamber worktree and split into six branches, each cut from the <code>origin/main</code> of its day: <code>feat/board-text-editing</code>, <code>feat/comment-edit-delete</code>, <code>feat/board-filters</code>, <code>feat/board-timeline-refs</code>, <code>feat/board-item-writes</code> and <code>feat/reviewer-states</code>. The first three pull requests were captured on the combined branch before the split — their descriptions say so — while the last three were captured on each branch's own build. Every capture is a 1440×900 frame of a real browser over CDP, and every write was read back through the host's own API on a scratch repository." data-zh="在 OpenChamber 的 worktree 中完成，并拆成六条分支，每条都从当天的 <code>origin/main</code> 切出：<code>feat/board-text-editing</code>、<code>feat/comment-edit-delete</code>、<code>feat/board-filters</code>、<code>feat/board-timeline-refs</code>、<code>feat/board-item-writes</code>、<code>feat/reviewer-states</code>。前三个 PR 的截图拍摄于拆分之前的合并分支（各 PR 描述里已注明），后三个则来自各自分支自己的构建。每张截图都是真实浏览器经 CDP 拍摄的 1440×900 画面，每次写入都在临时仓库上用宿主自身的 API 回读确认。">Built in the OpenChamber worktree and split into six branches, each cut from the <code>origin/main</code> of its day: <code>feat/board-text-editing</code>, <code>feat/comment-edit-delete</code>, <code>feat/board-filters</code>, <code>feat/board-timeline-refs</code>, <code>feat/board-item-writes</code> and <code>feat/reviewer-states</code>. Every screenshot on this page is a 1440×900 capture of that branch's own build in a real browser over CDP; every write was read back through the host's own API on a scratch repository.</p>
-</footer>
-</main>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const pick = localStorage.getItem('board-report-lang') || 'en';
-  const apply = (lang) => {
-    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
-    for (const el of document.querySelectorAll('[data-en]')) {
-      const text = el.getAttribute(lang === 'zh' ? 'data-zh' : 'data-en');
-      if (text !== null) el.innerHTML = text;
-    }
-    for (const button of document.querySelectorAll('[data-lang]')) {
-      button.setAttribute('aria-pressed', String(button.getAttribute('data-lang') === lang));
-    }
-    localStorage.setItem('board-report-lang', lang);
-  };
-  for (const button of document.querySelectorAll('[data-lang]')) {
-    button.addEventListener('click', () => apply(button.getAttribute('data-lang')));
-  }
-  apply(pick);
-});
-</script>
-<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" data-open="false">
-  <button type="button" class="lightbox__close" data-lightbox-close>&times;</button>
-  <button type="button" class="lightbox__nav" data-lightbox-prev data-prev>&lsaquo;</button>
-  <button type="button" class="lightbox__nav" data-lightbox-next data-next>&rsaquo;</button>
-  <figure class="lightbox__figure">
-    <img class="lightbox__image" alt="">
-    <figcaption class="lightbox__bar"><span data-lightbox-caption></span><span class="lightbox__counter" data-lightbox-counter></span></figcaption>
-  </figure>
-</div>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const figures = [...document.querySelectorAll('main figure')].filter((figure) => figure.querySelector('img'));
-  if (figures.length === 0) return;
-  const images = figures.map((figure) => figure.querySelector('img'));
-  const box = document.getElementById('lightbox');
-  const boxImage = box.querySelector('.lightbox__image');
-  const caption = box.querySelector('[data-lightbox-caption]');
-  const counter = box.querySelector('[data-lightbox-counter]');
-  const closeButton = box.querySelector('[data-lightbox-close]');
-  const prevButton = box.querySelector('[data-lightbox-prev]');
-  const nextButton = box.querySelector('[data-lightbox-next]');
-  let openIndex = -1;
-  let returnTo = null;
-  const isZh = () => document.documentElement.lang === 'zh-CN';
-  const closeLabel = () => (isZh() ? '关闭（Esc）' : 'Close (Esc)');
-  const prevLabel = () => (isZh() ? '上一张' : 'Previous image');
-  const nextLabel = () => (isZh() ? '下一张' : 'Next image');
-  const dialogLabel = () => (isZh() ? '放大的截图' : 'Enlarged screenshot');
-  const relabel = () => {
-    closeButton.setAttribute('aria-label', closeLabel());
-    prevButton.setAttribute('aria-label', prevLabel());
-    nextButton.setAttribute('aria-label', nextLabel());
-    box.setAttribute('aria-label', dialogLabel());
-    if (openIndex >= 0) {
-      const text = figures[openIndex].querySelector('figcaption')?.textContent.trim() ?? '';
-      caption.textContent = text;
-      boxImage.alt = text;
-    }
-  };
-  const show = (index) => {
-    if (index < 0 || index >= images.length) return;
-    openIndex = index;
-    const image = images[index];
-    boxImage.src = image.currentSrc || image.src;
-    const text = figures[index].querySelector('figcaption');
-    const label = text ? text.textContent.trim() : '';
-    caption.textContent = label;
-    counter.textContent = (index + 1) + ' / ' + images.length;
-    boxImage.alt = label;
-    box.dataset.open = 'true';
-    document.body.setAttribute('data-lightbox', 'true');
-    relabel();
-    prevButton.disabled = images.length < 2;
-    nextButton.disabled = images.length < 2;
-    closeButton.focus({ preventScroll: true });
-  };
-  const close = () => {
-    if (openIndex < 0) return;
-    box.dataset.open = 'false';
-    document.body.removeAttribute('data-lightbox');
-    boxImage.removeAttribute('src');
-    const back = returnTo;
-    openIndex = -1;
-    returnTo = null;
-    if (back) back.focus({ preventScroll: true });
-  };
-  const step = (delta) => { if (openIndex >= 0) show((openIndex + delta + images.length) % images.length); };
-  images.forEach((image, index) => {
-    image.tabIndex = 0;
-    image.setAttribute('role', 'button');
-    image.setAttribute('aria-label', (isZh() ? '放大截图：' : 'Enlarge screenshot: ') + (figures[index].querySelector('figcaption')?.textContent.trim() ?? ''));
-    image.addEventListener('click', () => { returnTo = image; show(index); });
-    image.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); returnTo = image; show(index); }
-    });
-    // The caption is part of the same capture, and on a phone it is the part
-    // people tap; a click that finishes a text selection is left alone.
-    figures[index].addEventListener('click', (event) => {
-      if (event.target === image) return;
-      if (window.getSelection()?.toString()) return;
-      returnTo = image;
-      show(index);
-    });
-  });
-  closeButton.addEventListener('click', close);
-  prevButton.addEventListener('click', () => step(-1));
-  nextButton.addEventListener('click', () => step(1));
-  box.addEventListener('click', (event) => { if (event.target === box || event.target === boxImage) close(); });
-  document.addEventListener('keydown', (event) => {
-    if (openIndex < 0) return;
-    if (event.key === 'Escape') { event.preventDefault(); close(); return; }
-    if (event.key === 'ArrowLeft') { event.preventDefault(); step(-1); return; }
-    if (event.key === 'ArrowRight') { event.preventDefault(); step(1); }
-  });
-  for (const button of document.querySelectorAll('[data-lang]')) button.addEventListener('click', relabel);
-});
-</script>
-</body>
-</html>
-<section id="scope">
+
+
+    <section id="scope">
   <h2 data-en="Scope" data-zh="范围">Scope</h2>
   <p class="sub" data-en="Everything on this page lives behind the existing board surfaces: the desktop and phone board, the Tracker repository tab, and the branch's pull-request tab. The reference picker stays read-only, and a linked item never offers a write. Every write goes through the shared mutation executor: an idempotency key and digest are claimed before the provider call, a repeated key replays instead of writing twice, and an interrupted write reconciles to a sticky outcome-unknown rather than a guess." data-zh="本页所有能力都挂在既有的看板界面上：桌面与手机看板、Tracker 的 Repository 页、分支的 PR 页。引用选择器保持只读，linked 条目永远不给写入入口。每个写入都走共享的 mutation 执行器：调用 provider 之前先落幂等键与 digest，重复的键只重放不二次写入，中断的写入对账为粘性的 outcome-unknown，而不是猜测结果。">Everything on this page lives behind the existing board surfaces: the desktop and phone board, the Tracker repository tab, and the branch's pull-request tab. The reference picker stays read-only, and a linked item never offers a write. Every write goes through the shared mutation executor: an idempotency key and digest are claimed before the provider call, a repeated key replays instead of writing twice, and an interrupted write reconciles to a sticky outcome-unknown rather than a guess.</p>
   <div class="grid">
@@ -617,3 +496,127 @@ document.addEventListener('DOMContentLoaded', () => {
     <p data-en="Reactions, milestone / due date / projects, team reviewers, explicit auto-merge, re-run checks and adding linked issues. Merge-when-ready already enables auto-merge when a merge is blocked, so a second control would be a duplicate." data-zh="Reactions、milestone/截止日期/projects、team reviewers、显式 auto-merge、重新运行检查、新增关联 issue。merge-when-ready 在合并被阻塞时已经会开启 auto-merge，再加一个控件就是重复。">Reactions, milestone / due date / projects, team reviewers, explicit auto-merge, re-run checks and adding linked issues. Merge-when-ready already enables auto-merge when a merge is blocked, so a second control would be a duplicate.</p>
   </div>
 </section>
+
+    <footer>
+  <p data-en="Built in the OpenChamber worktree and split into six branches, each cut from the <code>origin/main</code> of its day: <code>feat/board-text-editing</code>, <code>feat/comment-edit-delete</code>, <code>feat/board-filters</code>, <code>feat/board-timeline-refs</code>, <code>feat/board-item-writes</code> and <code>feat/reviewer-states</code>. The first three pull requests were captured on the combined branch before the split — their descriptions say so — while the last three were captured on each branch's own build. Every capture is a 1440×900 frame of a real browser over CDP, and every write was read back through the host's own API on a scratch repository." data-zh="在 OpenChamber 的 worktree 中完成，并拆成六条分支，每条都从当天的 <code>origin/main</code> 切出：<code>feat/board-text-editing</code>、<code>feat/comment-edit-delete</code>、<code>feat/board-filters</code>、<code>feat/board-timeline-refs</code>、<code>feat/board-item-writes</code>、<code>feat/reviewer-states</code>。前三个 PR 的截图拍摄于拆分之前的合并分支（各 PR 描述里已注明），后三个则来自各自分支自己的构建。每张截图都是真实浏览器经 CDP 拍摄的 1440×900 画面，每次写入都在临时仓库上用宿主自身的 API 回读确认。">Built in the OpenChamber worktree and split into six branches, each cut from the <code>origin/main</code> of its day: <code>feat/board-text-editing</code>, <code>feat/comment-edit-delete</code>, <code>feat/board-filters</code>, <code>feat/board-timeline-refs</code>, <code>feat/board-item-writes</code> and <code>feat/reviewer-states</code>. Every screenshot on this page is a 1440×900 capture of that branch's own build in a real browser over CDP; every write was read back through the host's own API on a scratch repository.</p>
+</footer>
+</main>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const pick = localStorage.getItem('board-report-lang') || 'en';
+  const apply = (lang) => {
+    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+    for (const el of document.querySelectorAll('[data-en]')) {
+      const text = el.getAttribute(lang === 'zh' ? 'data-zh' : 'data-en');
+      if (text !== null) el.innerHTML = text;
+    }
+    for (const button of document.querySelectorAll('[data-lang]')) {
+      button.setAttribute('aria-pressed', String(button.getAttribute('data-lang') === lang));
+    }
+    localStorage.setItem('board-report-lang', lang);
+  };
+  for (const button of document.querySelectorAll('[data-lang]')) {
+    button.addEventListener('click', () => apply(button.getAttribute('data-lang')));
+  }
+  apply(pick);
+});
+</script>
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" data-open="false">
+  <button type="button" class="lightbox__close" data-lightbox-close>&times;</button>
+  <button type="button" class="lightbox__nav" data-lightbox-prev data-prev>&lsaquo;</button>
+  <button type="button" class="lightbox__nav" data-lightbox-next data-next>&rsaquo;</button>
+  <figure class="lightbox__figure">
+    <img class="lightbox__image" alt="">
+    <figcaption class="lightbox__bar"><span data-lightbox-caption></span><span class="lightbox__counter" data-lightbox-counter></span></figcaption>
+  </figure>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const figures = [...document.querySelectorAll('main figure')].filter((figure) => figure.querySelector('img'));
+  if (figures.length === 0) return;
+  const images = figures.map((figure) => figure.querySelector('img'));
+  const box = document.getElementById('lightbox');
+  const boxImage = box.querySelector('.lightbox__image');
+  const caption = box.querySelector('[data-lightbox-caption]');
+  const counter = box.querySelector('[data-lightbox-counter]');
+  const closeButton = box.querySelector('[data-lightbox-close]');
+  const prevButton = box.querySelector('[data-lightbox-prev]');
+  const nextButton = box.querySelector('[data-lightbox-next]');
+  let openIndex = -1;
+  let returnTo = null;
+  const isZh = () => document.documentElement.lang === 'zh-CN';
+  const closeLabel = () => (isZh() ? '关闭（Esc）' : 'Close (Esc)');
+  const prevLabel = () => (isZh() ? '上一张' : 'Previous image');
+  const nextLabel = () => (isZh() ? '下一张' : 'Next image');
+  const dialogLabel = () => (isZh() ? '放大的截图' : 'Enlarged screenshot');
+  const relabel = () => {
+    closeButton.setAttribute('aria-label', closeLabel());
+    prevButton.setAttribute('aria-label', prevLabel());
+    nextButton.setAttribute('aria-label', nextLabel());
+    box.setAttribute('aria-label', dialogLabel());
+    if (openIndex >= 0) {
+      const text = figures[openIndex].querySelector('figcaption')?.textContent.trim() ?? '';
+      caption.textContent = text;
+      boxImage.alt = text;
+    }
+  };
+  const show = (index) => {
+    if (index < 0 || index >= images.length) return;
+    openIndex = index;
+    const image = images[index];
+    boxImage.src = image.currentSrc || image.src;
+    const text = figures[index].querySelector('figcaption');
+    const label = text ? text.textContent.trim() : '';
+    caption.textContent = label;
+    counter.textContent = (index + 1) + ' / ' + images.length;
+    boxImage.alt = label;
+    box.dataset.open = 'true';
+    document.body.setAttribute('data-lightbox', 'true');
+    relabel();
+    prevButton.disabled = images.length < 2;
+    nextButton.disabled = images.length < 2;
+    closeButton.focus({ preventScroll: true });
+  };
+  const close = () => {
+    if (openIndex < 0) return;
+    box.dataset.open = 'false';
+    document.body.removeAttribute('data-lightbox');
+    boxImage.removeAttribute('src');
+    const back = returnTo;
+    openIndex = -1;
+    returnTo = null;
+    if (back) back.focus({ preventScroll: true });
+  };
+  const step = (delta) => { if (openIndex >= 0) show((openIndex + delta + images.length) % images.length); };
+  images.forEach((image, index) => {
+    image.tabIndex = 0;
+    image.setAttribute('role', 'button');
+    image.setAttribute('aria-label', (isZh() ? '放大截图：' : 'Enlarge screenshot: ') + (figures[index].querySelector('figcaption')?.textContent.trim() ?? ''));
+    image.addEventListener('click', () => { returnTo = image; show(index); });
+    image.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); returnTo = image; show(index); }
+    });
+    // The caption is part of the same capture, and on a phone it is the part
+    // people tap; a click that finishes a text selection is left alone.
+    figures[index].addEventListener('click', (event) => {
+      if (event.target === image) return;
+      if (window.getSelection()?.toString()) return;
+      returnTo = image;
+      show(index);
+    });
+  });
+  closeButton.addEventListener('click', close);
+  prevButton.addEventListener('click', () => step(-1));
+  nextButton.addEventListener('click', () => step(1));
+  box.addEventListener('click', (event) => { if (event.target === box || event.target === boxImage) close(); });
+  document.addEventListener('keydown', (event) => {
+    if (openIndex < 0) return;
+    if (event.key === 'Escape') { event.preventDefault(); close(); return; }
+    if (event.key === 'ArrowLeft') { event.preventDefault(); step(-1); return; }
+    if (event.key === 'ArrowRight') { event.preventDefault(); step(1); }
+  });
+  for (const button of document.querySelectorAll('[data-lang]')) button.addEventListener('click', relabel);
+});
+</script>
+</body>
+</html>
